@@ -30,7 +30,7 @@ reg [3:0] LED_ON;
 
 wire [5:0] sec,min,hour;
 wire [3:0] D0;
-wire [3:0] D1;
+wire [3:0] D1; 
 wire [3:0] D2;
 wire [3:0] D3;
 wire [3:0] D4;
