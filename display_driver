@@ -34,7 +34,7 @@ always@(posedge CLK100MHZ)
             counter <= counter + 20'd1;
         else
             counter <= 20'd0;
-    end
+    end 
 
 always@(*)
     begin
