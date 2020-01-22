@@ -1,0 +1,243 @@
+//Main File
+
+`timescale 1ns / 1ps
+
+module alarmClock(
+
+input CLK100MHZ, 
+input rst, 
+input fast_count, 
+input hour_inc, 
+input minute_inc, 
+input alarmTimeSet,
+input alarmSet,
+input timeSet, 
+
+output [7:0] seg, 
+output [7:0] AN, 
+output [2:0] LED
+
+);
+
+reg [26:0] clock;
+reg [26:0] clock2; 
+reg [26:0] clock3; 
+reg [16:0] counter;
+reg [16:0] displayCounter;
+reg [16:0] alarmCounter;
+reg [16:0] tempCounter;
+reg [3:0] LED_ON;
+
+wire [5:0] sec,min,hour;
+wire [3:0] D0;
+wire [3:0] D1;
+wire [3:0] D2;
+wire [3:0] D3;
+wire [3:0] D4;
+wire [3:0] D5;
+wire [3:0] D6;
+wire [3:0] D7;
+
+wire CA;
+wire CB;
+wire CC;
+wire CD;
+wire CE;
+wire CF;
+wire CG;
+assign seg[0]=CA;
+assign seg[1]=CB;
+assign seg[2]=CC;
+assign seg[3]=CD;
+assign seg[4]=CE;
+assign seg[5]=CF;
+assign seg[6]=CG;
+assign seg[7]=0;
+
+reg [32:0] counter;
+reg state;
+initial 
+        begin
+            displayCounter <= 17'd3600;
+            alarmCounter <= 17'd3600;
+        end
+
+always@(posedge CLK100MHZ)
+    begin
+        if(clock == 27'd99999999)
+            clock <= 27'd0;
+        else
+            clock <= clock + 27'd1;
+end
+
+always@(posedge CLK100MHZ) 
+    begin
+        if(clock2 == 27'd999999)
+            clock2 <= 27'd0;
+        else
+            clock2 <= clock2 + 27'd1;
+end
+
+always@(posedge CLK100MHZ) 
+  begin
+    if(clock3 == 27'd19)
+      clock3 <= 27'd0;
+    else
+      clock3 <= clock3 + 27'd1;
+end
+
+always @(posedge CLK100MHZ)
+    begin
+        if(rst)
+            alarmCounter <= 17'd3600;
+        begin
+            if(clock == 27'd1)
+                if(alarmCounter == 17'd86399)
+                  begin
+                    alarmCounter <= 17'd3600;
+                     LED_ON[3] = 0; 
+                  end
+            else if(alarmTimeSet && hour_inc)
+           begin
+             if((alarmCounter/3600)%60<24)
+                   begin
+                    if(alarmCounter >= 17'd43199)
+                        alarmCounter <= alarmCounter - 17'd39600;
+                    else
+                        alarmCounter <= alarmCounter + 17'd3600; 
+                   end                   
+           end            
+           else if(alarmTimeSet && minute_inc)
+                  begin
+                    if((alarmCounter % 17'd3540 == 0) && (alarmCounter != 17'd3600))
+                        alarmCounter <= alarmCounter - 17'd3540;
+                    else
+                        alarmCounter <= alarmCounter + 17'd60;
+                  end                              
+           else
+                alarmCounter <= alarmCounter;          
+           end                                                         
+    end
+always @(posedge CLK100MHZ) // Counter
+    begin
+       
+        if(rst)
+        begin
+            counter <= 17'd0;
+            displayCounter <= 17'd3600;
+            LED_ON[0] = 0;
+            LED_ON[1] = 0;
+            LED_ON[2] = 0;          
+         end
+        //Increase Time
+        else if(fast_count && timeSet)
+            begin
+           if (clock2 == 27'd1)
+            if (counter == 17'd86399)
+            begin
+                counter <= 17'd0;
+                displayCounter <= 17'd3600;                
+                end
+            else
+                begin
+                    counter <= counter + 17'd1;
+                    displayCounter = displayCounter + 17'd1;                 
+                end               
+            else
+                begin
+                counter <= counter;
+                displayCounter <= displayCounter;
+                end
+            end
+           else           
+        begin      
+        if (clock == 27'd1)            
+            if (counter == 17'd86399)
+                begin
+                    counter <= 17'd0;
+                    displayCounter <= 17'd3600;
+                    tempCounter <= 17'd3600;
+                    LED_ON[0] = 0;
+                end
+    
+         else if(timeSet && minute_inc)
+            begin
+                counter <= counter + 17'd60;
+                displayCounter <= displayCounter + 17'd60;
+                if((counter % 17'd3540 == 0) || (counter % 17'd3541 == 0) || (counter % 17'd3542 == 0)|| (counter % 17'd3543 == 0)|| (counter % 17'd3544 == 0)|| (counter % 17'd3545 == 0)|| (counter % 17'd3546 == 0)|| (counter % 17'd3547 == 0)|| (counter % 17'd3548 == 0)|| (counter % 17'd3549 == 0)|| (counter % 17'd3550 == 0)|| (counter % 17'd3551 == 0)|| (counter % 17'd3552 == 0)|| (counter % 17'd3553 == 0)|| (counter % 17'd3554 == 0)|| (counter % 17'd3555 == 0)|| (counter % 17'd3556 == 0)|| (counter % 17'd3557 == 0)|| (counter % 17'd3558 == 0)|| (counter % 17'd3559 == 0)|| (counter % 17'd3560 == 0)|| (counter % 17'd3561 == 0) || (counter % 17'd3562 == 0)|| (counter % 17'd3563 == 0)|| (counter % 17'd3564 == 0)|| (counter % 17'd3565 == 0)|| (counter % 17'd3566 == 0)|| (counter % 17'd3567 == 0)|| (counter % 17'd3568 == 0)|| (counter % 17'd3569 == 0)|| (counter % 17'd3570 == 0)|| (counter % 17'd3571 == 0)|| (counter % 17'd3572 == 0)|| (counter % 17'd3573 == 0)|| (counter % 17'd3574 == 0)|| (counter % 17'd3575 == 0)|| (counter % 17'd3576 == 0)|| (counter % 17'd3577 == 0)|| (counter % 17'd3578 == 0)|| (counter % 17'd3579 == 0)|| (counter % 17'd3580 == 0) || (counter % 17'd3581 == 0) || (counter % 17'd3582 == 0)|| (counter % 17'd3583 == 0)|| (counter % 17'd3584 == 0)|| (counter % 17'd3585 == 0)|| (counter % 17'd3586 == 0)|| (counter % 17'd3587 == 0)|| (counter % 17'd3588 == 0)|| (counter % 17'd3589 == 0)|| (counter % 17'd3590 == 0)|| (counter % 17'd3591 == 0)|| (counter % 17'd3592 == 0)|| (counter % 17'd3593 == 0)|| (counter % 17'd3594 == 0)|| (counter % 17'd3595 == 0)|| (counter % 17'd3596 == 0)|| (counter % 17'd3597 == 0)|| (counter % 17'd3598 == 0)|| (counter % 17'd3599 == 0)|| (counter % 17'd3600 == 0)&& (counter != 17'd0))
+                    begin
+                    counter <= counter - 17'd3540;
+                    displayCounter <= displayCounter - 17'd3540;
+                    end
+               
+            end
+                     
+         else if(timeSet && hour_inc)
+            if((counter/3600)%60<24)
+                begin
+                    counter <= counter + 17'd3600;
+                    displayCounter <= displayCounter + 17'd3600;
+                    if(counter >= 17'd39599)
+                        begin
+                            counter <= counter - 17'd39600;
+                            displayCounter <= displayCounter - 17'd39600; 
+                            LED_ON[0] = !LED_ON[0];
+                         end
+                end
+
+            else
+                begin
+                counter <= counter;
+                displayCounter <= displayCounter;
+                end
+
+        else
+            begin
+             counter <= counter + 17'd1;
+             displayCounter <= displayCounter + 17'd1;
+            end
+            
+    end
+        if(alarmSet && (alarmCounter == displayCounter))
+                          begin
+                            LED_ON[3] = 1;                        
+                          end
+                        
+         if(alarmSet)
+           LED_ON[1] = 1;                 
+         else if(!alarmSet)
+             begin
+                 LED_ON[1] = 0;
+                 LED_ON[2] = 0;
+                 LED_ON[3] = 0;
+             end
+
+         if(alarmSet && LED_ON[3]==1)
+              LED_ON[2] = 1;
+                      
+        if(alarmTimeSet)
+           tempCounter <= alarmCounter;
+         else 
+           tempCounter <= displayCounter;
+                       
+    
+end
+        
+assign sec = tempCounter % 60;
+assign min = (tempCounter/60) % 60;
+assign hour = (tempCounter / 3600) % 60;
+assign D0 = sec % 10;
+assign D1 = sec / 10;
+assign D2 = min % 10;
+assign D3 = min / 10;
+assign D4 = hour % 10;
+assign D5 = hour / 10;
+assign D6 = 4'd0;
+assign D7 = 4'd0;
+assign LED[0] = LED_ON[0];
+assign LED[1] = LED_ON[1];
+assign LED[2] = LED_ON[2];
+
+display_driver d_d1( CLK100MHZ,rst,D7,D6,D5,D4,D3,D2,D1,D0,CA,CB,CC,CD,CE,CF,CG,AN );
+
+endmodule
